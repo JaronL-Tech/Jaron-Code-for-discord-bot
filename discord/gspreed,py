@@ -1,0 +1,9 @@
+import gspread
+
+gc = gspread.service_account()
+
+sh = gc.open("https://docs.google.com/spreadsheets/d/1QxryeovuDFsCCKBEhCJvRQEJQOcrZVlVibLB14eo6kQ/edit?usp=sharing") 
+
+gc = gspread.service_account(filename="C:\Users\jleac\Downloads\bots-404319-27c79cc7ead0.json")
+
+print(sh.sheet1.get('A1'))

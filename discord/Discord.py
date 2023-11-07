@@ -1,5 +1,5 @@
 import gspread
-from oauth2client.service_account import ServiceAccountCredentials
+from google.oauth2.service_account import Credentials
 import discord
 from discord.ext import commands, tasks
 import datetime
@@ -14,10 +14,10 @@ intents.members = True
 
 discordClient = commands.Bot(command_prefix = ">", help_command=None, intents=intents, case_insensitive=True)
 
-scope = ["https://docs.google.com/spreadsheets/d/1_o0rYbRQYY0IdDsnl1j1-p_xJOgoPTFb48o4pbnrwzY/edit#gid=0", "https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_name("Credentials.json", scope)
-sheetsClient = gspread.authorize(creds)
-sheet = sheetsClient.open("Downtime Data").sheet1
+scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+credentials = Credentials.from_service_account_file("C:\Users\jleac\Downloads\bots-404319-27c79cc7ead0.json", scope)
+sheetsClient = gspread.authorize(credentials)
+sheet = sheetsClient.open('https://docs.google.com/spreadsheets/d/1QxryeovuDFsCCKBEhCJvRQEJQOcrZVlVibLB14eo6kQ/edit#gid=0')
 
 with open('DowntimeResults.json') as x:
   downtimeJobs = json.load(x)
