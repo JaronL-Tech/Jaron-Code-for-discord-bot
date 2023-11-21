@@ -32,8 +32,9 @@ characters = []
 downtime = []
 credits = []
 lore = []
-acclaim = []
-intrigue = []
+contacts = []
+blackmail = []
+exp = []
 disadv = []
 
 updating = False
@@ -44,8 +45,9 @@ def updateData():
 	global players
 	global credits
 	global lore
-	global acclaim
-	global intrigue
+	global contacts
+	global blackmail 
+	global exp
 	players = sheet.col_values(1)
 	del players[0]
 	characters = sheet.col_values(2)
@@ -56,10 +58,12 @@ def updateData():
 	del credits[0]
 	lore = sheet.col_values(5)
 	del lore[0]
-	acclaim = sheet.col_values(6)
-	del acclaim[0]
-	intrigue = sheet.col_values(7)
-	del acclaim[0]
+	contacts = sheet.col_values(6)
+	del contacts[0]
+	blackmail = sheet.col_values(7)
+	del contacts[0]
+	exp = sheet.col_values(8)
+	del exp[0]
 
 
 @discordClient.event
@@ -81,7 +85,7 @@ async def on_member_remove(member):
 @discordClient.command()
 async def help(ctx):
 	await ctx.message.add_reaction('\U0001F44D')
-	await ctx.author.send("```>initialise [character] [DTD]\nThis command begins tracking the downtime and resources of a character. If you have a pre-existing character you have just decided to track, fill in the DTD section with their current DTD, otherwise ignore that prompt. \n\n>checkDTD [character]\nThis command allows you to check how much DTD a given character has.\n\n>spendDTD [character] [DTD] \nThis command allows you to expend downtime on a given character.\n\n>delete [character]\nThis command removes a character from the database. Please use it when a character becomes unavaliable to avoid bloating the database.\n\n>deposit [character] [credits] [lore] [acclaim] [intrigue]\nThis command allows you to deposit resources into a character's account. Deposits will not take effect until either a DM or downtime roller approves them by reacting to your message with a: \U0001F44D\n\n>withdraw [character] [credits][lore] [acclaim] [intrigue]\nThis command allows you to withdraw resources from a character's account.\n\n>balance [character]\nThis command allows you to check how many resources a character has.\n\n>transfer [credits] [lore] [acclaim] [intrigue] to [transfer recipient] from [your character]\nThis command transfers resources between two characters.\n\n>checkCharacters\nThis command returns the name, downtime, and balance of each character you are currently tracking.\n\n>roll [DTD] [job] for [character] with [modifier]\nThis command rolls downtime jobs for a given character, automatically spending the days and adding any resources gained. Valid jobs include:\n- Bounty Hunting\n- Carousing (Lower, middle, or upper)\n- Crime\n- Espionage (Lower, middle or upper)\n- Racing (Rented racing if you don't have a speeder)\n- Research \n- Mercenary contracting\n- Pitfighting\n- Work\n\nPLEASE ENSURE THAT WHEN USING THESE COMMANDS YOU DO NOT INCORPORATE THE [] BRACKETS```")
+	await ctx.author.send("```>initialise [character] [DTD]\nThis command begins tracking the downtime and resources of a character. If you have a pre-existing character you have just decided to track, fill in the DTD section with their current DTD, otherwise ignore that prompt. \n\n>checkDTD [character]\nThis command allows you to check how much DTD a given character has.\n\n>spendDTD [character] [DTD] \nThis command allows you to expend downtime on a given character.\n\n>delete [character]\nThis command removes a character from the database. Please use it when a character becomes unavaliable to avoid bloating the database.\n\n>deposit [character] [credits] [lore] [contacts] [blackmail] [exp]\nThis command allows you to deposit resources into a character's account. Deposits will not take effect until either a DM or downtime roller approves them by reacting to your message with a: \U0001F44D\n\n>withdraw [character] [credits][lore] [contacts] [blackmail]\nThis command allows you to withdraw resources from a character's account.\n\n>balance [character]\nThis command allows you to check how many resources a character has.\n\n>transfer [credits] [lore] [contacts] [blackmail] to [transfer recipient] from [your character]\nThis command transfers resources between two characters.\n\n>checkCharacters\nThis command returns the name, downtime, and balance of each character you are currently tracking.\n\n>roll [DTD] [job] for [character] with [modifier]\nThis command rolls downtime jobs for a given character, automatically spending the days and adding any resources gained. Valid jobs include:\n- Bounty Hunting\n- Carousing (Lower, middle, or upper)\n- Crime\n- Espionage (Lower, middle or upper)\n- Racing (Rented racing if you don't have a speeder)\n- Research \n- Mercenary contracting\n- Pitfighting\n- Work\n\nPLEASE ENSURE THAT WHEN USING THESE COMMANDS YOU DO NOT INCORPORATE THE [] BRACKETS```")
 
 @discordClient.command(aliases=["initialize"])
 async def initialise(ctx, *, message):
@@ -144,7 +148,7 @@ async def delete(ctx, *, character):
 	else:
 		await ctx.send("You cannot delete a character whilst the current downtime period is being applied. Please try again later.")
 
-@discordClient.command(aliases=["CharacterList", "checkChars", "getCharacters", "getChars"])
+@discordClient.command(aliases=["CharacterList", "checkChars", "getCharacters", "cc", "getChars"])
 async def checkCharacters(ctx):
 	updateData()
 	global characters
@@ -152,8 +156,9 @@ async def checkCharacters(ctx):
 	global downtime
 	global credits
 	global lore
-	global acclaim
-	global intrigue
+	global contacts
+	global blackmail
+	global exp
 
 	if str(ctx.author.id) not in players:
 		message = "You are not currently tracking any characters."
@@ -161,7 +166,7 @@ async def checkCharacters(ctx):
 		message = "The characters you are currently tracking are:\n\n"
 		for x in range (len(players)):
 			if players[x] == str(ctx.author.id):
-				message += characters[x].title() + ", with " + str(min(60, int(downtime[x]))) + " DTD and "  + credits[x] + "cr" + lore[x] + "lore" + acclaim[x] + "acclaim," + intrigue[x] + "intrigue\n"
+				message += characters[x].title() + ", with " + str(min(60, int(downtime[x]))) + " DTD and "  + credits[x] + "cr" + lore[x] + "lore" + contacts[x] + "contacts," + blackmail[x] + "blackmail" + exp[x] + "exp\n"
 	await ctx.send(message)
 
 @discordClient.command()
@@ -170,7 +175,7 @@ async def check(ctx, *, message):
 
 @discordClient.command()
 async def spend(ctx, *, message):
-	await ctx.send("Please use  >spendDTD , >spendCr ,>spendlore , >spendacclaim , >spendintrigue.")
+	await ctx.send("Please use  >spendDTD , >spendCr ,>spendlore , >spendcontacts , >spendblackmail.")
 
 @discordClient.command()
 async def spendDTD(ctx, *, message):
@@ -262,7 +267,7 @@ async def deposit(ctx, *, message):
 async def deposit(ctx, *, message):
 	updateData()
 	global characters
-	global acclaim
+	global contacts
 
 	inputs = message.split(" ")
 	name = message[:-(len(inputs[-1]) + 1)]
@@ -272,7 +277,7 @@ async def deposit(ctx, *, message):
 			if int(inputs[-1].replace(',', '')) > 0:
 				await ctx.message.add_reaction('\U0001F551')
 			else:
-				await ctx.send("Please enter a valid amount of acclaim.")
+				await ctx.send("Please enter a valid amount of contacts.")
 		else:
 			output = "Could not find a character named " + name.title() + "."
 			await ctx.send(output)
@@ -282,7 +287,7 @@ async def deposit(ctx, *, message):
 async def deposit(ctx, *, message):
 	updateData()
 	global characters
-	global intrigue
+	global blackmail
 
 	inputs = message.split(" ")
 	name = message[:-(len(inputs[-1]) + 1)]
@@ -292,7 +297,28 @@ async def deposit(ctx, *, message):
 			if int(inputs[-1].replace(',', '')) > 0:
 				await ctx.message.add_reaction('\U0001F551')
 			else:
-				await ctx.send("Please enter a valid amount of intrigue.")
+				await ctx.send("Please enter a valid amount of blackmail.")
+		else:
+			output = "Could not find a character named " + name.title() + "."
+			await ctx.send(output)
+	except:
+		await ctx.send("Command invalid.")
+
+@discordClient.command(aliases=["dep"])
+async def deposit(ctx, *, message):
+	updateData()
+	global characters
+	global exp
+
+	inputs = message.split(" ")
+	name = message[:-(len(inputs[-1]) + 1)]
+
+	try:
+		if name.upper() in characters:
+			if int(inputs[-1].replace(',', '')) > 0:
+				await ctx.message.add_reaction('\U0001F551')
+			else:
+				await ctx.send("Please enter a valid amount of exp.")
 		else:
 			output = "Could not find a character named " + name.title() + "."
 			await ctx.send(output)
@@ -329,6 +355,50 @@ async def balance(ctx, *, character):
 	
 	if character.upper() in characters:
 		output = character.title() + " has " + credits[characters.index(character.upper())] + "cr."
+	else:
+		output = "Could not find a character named " + character.title() + "."
+	await ctx.send(output)
+@discordClient.command(aliases=["bal", "Checklore"])
+async def balance(ctx, *, character):
+	updateData()
+	global characters
+	global lore
+	
+	if character.upper() in characters:
+		output = character.title() + " has " + lore[characters.index(character.upper())] + "lore."
+	else:
+		output = "Could not find a character named " + character.title() + "."
+	await ctx.send(output)
+@discordClient.command(aliases=["bal", "Checkcontacts"])
+async def balance(ctx, *, character):
+	updateData()
+	global characters
+	global contacts
+	
+	if character.upper() in characters:
+		output = character.title() + " has " + contacts[characters.index(character.upper())] + "contacts."
+	else:
+		output = "Could not find a character named " + character.title() + "."
+	await ctx.send(output)
+@discordClient.command(aliases=["bal", "Checkblackmail"])
+async def balance(ctx, *, character):
+	updateData()
+	global characters
+	global blackmail
+	
+	if character.upper() in characters:
+		output = character.title() + " has " + blackmail[characters.index(character.upper())] + "blackmail."
+	else:
+		output = "Could not find a character named " + character.title() + "."
+	await ctx.send(output)
+@discordClient.command(aliases=["bal", "Checkexp"])
+async def balance(ctx, *, character):
+	updateData()
+	global characters
+	global exp
+	
+	if character.upper() in characters:
+		output = character.title() + " has " + exp[characters.index(character.upper())] + "exp."
 	else:
 		output = "Could not find a character named " + character.title() + "."
 	await ctx.send(output)
@@ -458,7 +528,7 @@ async def transfer(ctx, *, message):
 async def transfer(ctx, *, message):
 	updateData()
 	global characters
-	global acclaim
+	global contacts
 	global players
 
 	inputs = message.split(" ")
@@ -480,19 +550,19 @@ async def transfer(ctx, *, message):
 				if players[characters.index(name.upper())] == str(ctx.author.id):
 					if players[characters.index(recipient.upper())] != str(ctx.author.id) or ctx.author.id == 225428121145311232:
 						if int(transferValue) > 0:
-							if int(acclaim[characters.index(name.upper())]) >= transferValue:
-								sheet.update_cell(characters.index(name.upper()) + 2, 4, int(acclaim[characters.index(name.upper())]) - transferValue)
-								sheet.update_cell(characters.index(recipient.upper()) + 2, 4, int(acclaim[characters.index(recipient.upper())]) + transferValue)
+							if int(contacts[characters.index(name.upper())]) >= transferValue:
+								sheet.update_cell(characters.index(name.upper()) + 2, 4, int(contacts[characters.index(name.upper())]) - transferValue)
+								sheet.update_cell(characters.index(recipient.upper()) + 2, 4, int(contacts[characters.index(recipient.upper())]) + transferValue)
 								await ctx.message.add_reaction('\U0001F44D')
 							else:
-								output = name.title() + " only has " + str(acclaim[characters.index(name.upper())]) + "cr."
+								output = name.title() + " only has " + str(contacts[characters.index(name.upper())]) + "cr."
 								await ctx.send(output)
 						else:
-							await ctx.send("Cannot transfer acclaim value below 0.")
+							await ctx.send("Cannot transfer contacts value below 0.")
 					else:
-						await ctx.send("You cannot transfer acclaim between your own characters.")
+						await ctx.send("You cannot transfer contacts between your own characters.")
 				else:
-					await ctx.send("Only the person who created a character can transfer their acclaim.")
+					await ctx.send("Only the person who created a character can transfer their contacts.")
 			else:
 				output = "Could not find a character named " + recipient.title() + "."
 				await ctx.send(output)
@@ -505,7 +575,7 @@ async def transfer(ctx, *, message):
 async def transfer(ctx, *, message):
 	updateData()
 	global characters
-	global intrigue
+	global blackmail
 	global players
 
 	inputs = message.split(" ")
@@ -527,19 +597,19 @@ async def transfer(ctx, *, message):
 				if players[characters.index(name.upper())] == str(ctx.author.id):
 					if players[characters.index(recipient.upper())] != str(ctx.author.id) or ctx.author.id == 225428121145311232:
 						if int(transferValue) > 0:
-							if int(intrigue[characters.index(name.upper())]) >= transferValue:
-								sheet.update_cell(characters.index(name.upper()) + 2, 4, int(intrigue[characters.index(name.upper())]) - transferValue)
-								sheet.update_cell(characters.index(recipient.upper()) + 2, 4, int(intrigue[characters.index(recipient.upper())]) + transferValue)
+							if int(blackmail[characters.index(name.upper())]) >= transferValue:
+								sheet.update_cell(characters.index(name.upper()) + 2, 4, int(blackmail[characters.index(name.upper())]) - transferValue)
+								sheet.update_cell(characters.index(recipient.upper()) + 2, 4, int(blackmail[characters.index(recipient.upper())]) + transferValue)
 								await ctx.message.add_reaction('\U0001F44D')
 							else:
-								output = name.title() + " only has " + str(intrigue[characters.index(name.upper())]) + "cr."
+								output = name.title() + " only has " + str(blackmail[characters.index(name.upper())]) + "cr."
 								await ctx.send(output)
 						else:
-							await ctx.send("Cannot transfer intrigue value below 0.")
+							await ctx.send("Cannot transfer blackmail value below 0.")
 					else:
-						await ctx.send("You cannot transfer intrigue between your own characters.")
+						await ctx.send("You cannot transfer blackmail between your own characters.")
 				else:
-					await ctx.send("Only the person who created a character can transfer their intrigue.")
+					await ctx.send("Only the person who created a character can transfer their blackmail.")
 			else:
 				output = "Could not find a character named " + recipient.title() + "."
 				await ctx.send(output)
@@ -575,8 +645,8 @@ async def roll(ctx, *, message):
 	global credits
 	global players
 	global lore
-	global acclaim
-	global intrigue
+	global contacts
+	global blackmail
 	global disadv
 
 	disadv = sheet.col_values(8)
