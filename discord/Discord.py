@@ -61,7 +61,7 @@ def updateData():
 	contacts = sheet.col_values(6)
 	del contacts[0]
 	blackmail = sheet.col_values(7)
-	del contacts[0]
+	del blackmail[0]
 	exp = sheet.col_values(8)
 	del exp[0]
 
@@ -171,11 +171,11 @@ async def checkCharacters(ctx):
 
 @discordClient.command()
 async def check(ctx, *, message):
-	await ctx.send("Please use either >checkDTD or >checkCr.")
+	await ctx.send("Please use either >checkDTD , >checkCr , >checklore , >checkct , >checkbm.")
 
 @discordClient.command()
 async def spend(ctx, *, message):
-	await ctx.send("Please use  >spendDTD , >spendCr ,>spendlore , >spendcontacts , >spendblackmail.")
+	await ctx.send("Please use  >spendDTD , >spendCr ,>spendlore , >spendct , >spendbm.")
 
 @discordClient.command()
 async def spendDTD(ctx, *, message):
@@ -244,7 +244,7 @@ async def deposit(ctx, *, message):
 	except:
 		await ctx.send("Command invalid.")
 @discordClient.command(aliases=["dep"])
-async def deposit(ctx, *, message):
+async def depositlore(ctx, *, message):
 	updateData()
 	global characters
 	global lore
@@ -264,7 +264,7 @@ async def deposit(ctx, *, message):
 	except:
 		await ctx.send("Command invalid.")
 @discordClient.command(aliases=["dep"])
-async def deposit(ctx, *, message):
+async def depositct(ctx, *, message):
 	updateData()
 	global characters
 	global contacts
@@ -284,7 +284,7 @@ async def deposit(ctx, *, message):
 	except:
 		await ctx.send("Command invalid.")
 @discordClient.command(aliases=["dep"])
-async def deposit(ctx, *, message):
+async def depositbm(ctx, *, message):
 	updateData()
 	global characters
 	global blackmail
@@ -305,7 +305,7 @@ async def deposit(ctx, *, message):
 		await ctx.send("Command invalid.")
 
 @discordClient.command(aliases=["dep"])
-async def deposit(ctx, *, message):
+async def depositexp(ctx, *, message):
 	updateData()
 	global characters
 	global exp
@@ -359,7 +359,7 @@ async def balance(ctx, *, character):
 		output = "Could not find a character named " + character.title() + "."
 	await ctx.send(output)
 @discordClient.command(aliases=["bal", "Checklore"])
-async def balance(ctx, *, character):
+async def balancelore(ctx, *, character):
 	updateData()
 	global characters
 	global lore
@@ -370,7 +370,7 @@ async def balance(ctx, *, character):
 		output = "Could not find a character named " + character.title() + "."
 	await ctx.send(output)
 @discordClient.command(aliases=["bal", "Checkcontacts"])
-async def balance(ctx, *, character):
+async def balancect(ctx, *, character):
 	updateData()
 	global characters
 	global contacts
@@ -381,7 +381,7 @@ async def balance(ctx, *, character):
 		output = "Could not find a character named " + character.title() + "."
 	await ctx.send(output)
 @discordClient.command(aliases=["bal", "Checkblackmail"])
-async def balance(ctx, *, character):
+async def balancebm(ctx, *, character):
 	updateData()
 	global characters
 	global blackmail
@@ -392,7 +392,7 @@ async def balance(ctx, *, character):
 		output = "Could not find a character named " + character.title() + "."
 	await ctx.send(output)
 @discordClient.command(aliases=["bal", "Checkexp"])
-async def balance(ctx, *, character):
+async def balanceexp(ctx, *, character):
 	updateData()
 	global characters
 	global exp
@@ -478,7 +478,7 @@ async def transfer(ctx, *, message):
 	except:
 		await ctx.send("Command invalid.")
 @discordClient.command()
-async def transfer(ctx, *, message):
+async def transferlore(ctx, *, message):
 	updateData()
 	global characters
 	global lore
@@ -525,7 +525,7 @@ async def transfer(ctx, *, message):
 	except:
 		await ctx.send("Command invalid.")
 @discordClient.command()
-async def transfer(ctx, *, message):
+async def transferct(ctx, *, message):
 	updateData()
 	global characters
 	global contacts
@@ -572,7 +572,7 @@ async def transfer(ctx, *, message):
 	except:
 		await ctx.send("Command invalid.")
 @discordClient.command()
-async def transfer(ctx, *, message):
+async def transferbm(ctx, *, message):
 	updateData()
 	global characters
 	global blackmail
@@ -751,19 +751,48 @@ async def roll(ctx, *, message):
 			if d100Total > 110:
 				output += "Result: " + downtimeJobs[jsonID]["111"]["output"] + "\n"
 				netCrChange += int(downtimeJobs[jsonID]["111"]["crChange"])
+				output += "Result: " + downtimeJobs[jsonID]["111"]["output"] + "\n"
+				netblackmailChange += int(downtimeJobs[jsonID]["111"]["blackmailChange"])
+				output += "Result: " + downtimeJobs[jsonID]["111"]["output"] + "\n"
+				netloreChange += int(downtimeJobs[jsonID]["111"]["loreChange"])
+				output += "Result: " + downtimeJobs[jsonID]["111"]["output"] + "\n"
+				netcontactsChange += int(downtimeJobs[jsonID]["111"]["contactsChange"])
 			elif d100Total > 100:
 				output += "Result: " + downtimeJobs[jsonID]["101"]["output"] + "\n"
 				netCrChange += int(downtimeJobs[jsonID]["101"]["crChange"])
+				output += "Result: " + downtimeJobs[jsonID]["101"]["output"] + "\n"
+				netblackmailChange += int(downtimeJobs[jsonID]["101"]["blackmailChange"])
+				output += "Result: " + downtimeJobs[jsonID]["101"]["output"] + "\n"
+				netloreChange += int(downtimeJobs[jsonID]["101"]["loreChange"])
+				output += "Result: " + downtimeJobs[jsonID]["101"]["output"] + "\n"
+				netcontactsChange += int(downtimeJobs[jsonID]["101"]["contactsChange"])
 			elif d100Total > 70:
 				output += "Result: " + downtimeJobs[jsonID]["71"]["output"] + "\n"
 				netCrChange += int(downtimeJobs[jsonID]["71"]["crChange"])
+				output += "Result: " + downtimeJobs[jsonID]["71"]["output"] + "\n"
+				netblackmailChange += int(downtimeJobs[jsonID]["71"]["blackmailChange"])
+				output += "Result: " + downtimeJobs[jsonID]["71"]["output"] + "\n"
+				netloreChange += int(downtimeJobs[jsonID]["71"]["loreChange"])
+				output += "Result: " + downtimeJobs[jsonID]["71"]["output"] + "\n"
+				netcontactsChange += int(downtimeJobs[jsonID]["71"]["contactsChange"])
 			elif d100Total > 40:
 				output += "Result: " + downtimeJobs[jsonID]["41"]["output"] + "\n"
 				netCrChange += int(downtimeJobs[jsonID]["41"]["crChange"])
+				output += "Result: " + downtimeJobs[jsonID]["41"]["output"] + "\n"
+				netblackmailChange += int(downtimeJobs[jsonID]["41"]["blackmailChange"])
+				output += "Result: " + downtimeJobs[jsonID]["41"]["output"] + "\n"
+				netloreChange += int(downtimeJobs[jsonID]["41"]["loreChange"])
+				output += "Result: " + downtimeJobs[jsonID]["41"]["output"] + "\n"
+				netcontactsChange += int(downtimeJobs[jsonID]["41"]["contactsChange"])
 			else:
 				output += "Result: " + downtimeJobs[jsonID]["1"]["output"] + "\n"
 				netCrChange += int(downtimeJobs[jsonID]["1"]["crChange"])
-
+				output += "Result: " + downtimeJobs[jsonID]["1"]["output"] + "\n"
+				netblackmailChange += int(downtimeJobs[jsonID]["1"]["blackmailChange"])
+				output += "Result: " + downtimeJobs[jsonID]["1"]["output"] + "\n"
+				netloreChange += int(downtimeJobs[jsonID]["1"]["loreChange"])
+				output += "Result: " + downtimeJobs[jsonID]["1"]["output"] + "\n"
+				netcontactsChange += int(downtimeJobs[jsonID]["1"]["contactsChange"])
 			disadvNextRoll = False
 			if random.randint(1, 10) == 1:
 				output += "DISADVANTAGE NEXT ROLL\n"
