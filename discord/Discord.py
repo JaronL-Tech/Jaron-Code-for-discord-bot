@@ -807,6 +807,12 @@ async def roll(ctx, *, message):
 
 		sheet.update_cell(characterID + 2, 4, int(credits[characterID]) + netCrChange)
 		output = "NET CR CHANGE: " + str(netCrChange) + "cr"
+		sheet.update_cell(characterID + 2, 4, int(lore[characterID]) + netCrChange)
+		output = "NET lore CHANGE: " + str(netloreChange) + "lore"
+		sheet.update_cell(characterID + 2, 4, int(blackmail[characterID]) + netCrChange)
+		output = "NET blackmail CHANGE: " + str(netblackmailChange) + "blackmail"
+		sheet.update_cell(characterID + 2, 4, int(contacts[characterID]) + netCrChange)
+		output = "NET contacts CHANGE: " + str(netcontactsChange) + "contacts"
 		await ctx.send(output)
 
 discordClient.run("")
