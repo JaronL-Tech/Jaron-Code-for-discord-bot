@@ -358,7 +358,7 @@ async def balance(ctx, *, character):
 	else:
 		output = "Could not find a character named " + character.title() + "."
 	await ctx.send(output)
-@discordClient.command(aliases=["bal", "Checklore"])
+@discordClient.command(aliases=["ballore", "Checklore"])
 async def balancelore(ctx, *, character):
 	updateData()
 	global characters
@@ -369,7 +369,7 @@ async def balancelore(ctx, *, character):
 	else:
 		output = "Could not find a character named " + character.title() + "."
 	await ctx.send(output)
-@discordClient.command(aliases=["bal", "Checkcontacts"])
+@discordClient.command(aliases=["balct", "Checkcontacts"])
 async def balancect(ctx, *, character):
 	updateData()
 	global characters
@@ -380,7 +380,7 @@ async def balancect(ctx, *, character):
 	else:
 		output = "Could not find a character named " + character.title() + "."
 	await ctx.send(output)
-@discordClient.command(aliases=["bal", "Checkblackmail"])
+@discordClient.command(aliases=["balbm", "Checkblackmail"])
 async def balancebm(ctx, *, character):
 	updateData()
 	global characters
@@ -391,7 +391,7 @@ async def balancebm(ctx, *, character):
 	else:
 		output = "Could not find a character named " + character.title() + "."
 	await ctx.send(output)
-@discordClient.command(aliases=["bal", "Checkexp"])
+@discordClient.command(aliases=["balexp", "Checkexp"])
 async def balanceexp(ctx, *, character):
 	updateData()
 	global characters
