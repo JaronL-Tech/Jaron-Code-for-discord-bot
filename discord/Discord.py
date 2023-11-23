@@ -19,6 +19,10 @@ credentials = Credentials.from_service_account_file("C:\Users\jleac\Downloads\bo
 sheetsClient = gspread.authorize(credentials)
 sheet = sheetsClient.open('https://docs.google.com/spreadsheets/d/1QxryeovuDFsCCKBEhCJvRQEJQOcrZVlVibLB14eo6kQ/edit#gid=0')
 
+CHANNEL_ID = 1176610862988017745
+BOT_TOKEN = "MTE3MTUwNDA3NDg2MTA2ODI5OA.GXHhsn.Mnq43N2PKeCnUuhpuxmCYP1eWj7Epufefvg_Pg"
+
+
 with open('DowntimeResults.json') as x:
   downtimeJobs = json.load(x)
 
@@ -75,7 +79,7 @@ async def on_ready():
 async def on_member_remove(member):
 	global players
 	await asyncio.sleep(1800)
-	guild = discordClient.get_guild(DiscordServerID)
+	guild = discordClient.get_guild(740373244678504468)
 	if member not in guild.members:
 		updateData()
 		for x in range(len(players) - 1, -1, -1):
@@ -131,7 +135,7 @@ async def initialise(ctx, *, message):
 @discordClient.command(aliases=["untrack"])
 async def delete(ctx, *, character):
 	global updating
-	guild = discordClient.get_guild(DiscordServerID)
+	guild = discordClient.get_guild(740373244678504468)
 	if not updating:
 		updateData()
 		DM = discord.utils.get(ctx.guild.roles, name="DMs")
@@ -329,7 +333,7 @@ async def depositexp(ctx, *, message):
 async def on_raw_reaction_add(payload):
 	global characters
 	global credits
-	guild = discordClient.get_guild(DiscordServerID)
+	guild = discordClient.get_guild(740373244678504468)
 	channel = discordClient.get_channel(payload.channel_id)
 	message = await channel.fetch_message(payload.message_id)
 	user = guild.get_member(payload.user_id)
@@ -344,7 +348,7 @@ async def on_raw_reaction_add(payload):
 		if reaction.emoji == '\U0001F551' and reaction.me == True:
 			if (DR in user.roles or DM in user.roles) and payload.emoji.name == '\U0001F44D':
 				updateData()
-				await message.remove_reaction('\U0001F551', discordClient.get_user(BotUserID))
+				await message.remove_reaction('\U0001F551', discordClient.get_user(1171504074861068298))
 				sheet.update_cell(characters.index(name.upper()) + 2, 4, int(credits[characters.index(name.upper())]) + int(inputs[-1].replace(',', '')))
 
 @discordClient.command(aliases=["bal", "Checkcr"])
@@ -815,4 +819,4 @@ async def roll(ctx, *, message):
 		output = "NET contacts CHANGE: " + str(netcontactsChange) + "contacts"
 		await ctx.send(output)
 
-discordClient.run("")
+discordClient.run("MTE3MTUwNDA3NDg2MTA2ODI5OA.GXHhsn.Mnq43N2PKeCnUuhpuxmCYP1eWj7Epufefvg_Pg")
