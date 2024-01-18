@@ -1,5 +1,5 @@
 import gspread
-from google.oauth2.service_account import Credentials
+from oauth2client.service_account import ServiceAccountCredentials
 import discord
 from discord.ext import commands, tasks
 import datetime
@@ -14,13 +14,13 @@ intents.members = True
 
 discordClient = commands.Bot(command_prefix = ">", help_command=None, intents=intents, case_insensitive=True)
 
-scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-credentials = Credentials.from_service_account_file("C:\Users\jleac\Downloads\bots-404319-27c79cc7ead0.json", scope)
-sheetsClient = gspread.authorize(credentials)
-sheet = sheetsClient.open('https://docs.google.com/spreadsheets/d/1QxryeovuDFsCCKBEhCJvRQEJQOcrZVlVibLB14eo6kQ/edit#gid=0')
+scope = ["https://www.googleapis.com/auth/drive"]
+creds = ServiceAccountCredentials.from_json_keyfile_name("discord/bots-404319-27c79cc7ead0.json", scope)
+sheetsClient = gspread.authorize(creds)
+sheet = sheetsClient.open("Age of Unrest").sheet1
 
 CHANNEL_ID = 1176610862988017745
-BOT_TOKEN = "MTE3MTUwNDA3NDg2MTA2ODI5OA.GXHhsn.Mnq43N2PKeCnUuhpuxmCYP1eWj7Epufefvg_Pg"
+BOT_TOKEN = ""
 
 
 with open('DowntimeResults.json') as x:
@@ -39,7 +39,7 @@ lore = []
 contacts = []
 blackmail = []
 exp = []
-disadv = []
+
 
 updating = False
 
@@ -116,15 +116,15 @@ async def initialise(ctx, *, message):
 								name += inputs[x].upper()
 								name += " "
 							name = name[:-1]
-							newRow = [str(ctx.author.id), name, abs(int(inputs[-1])), 0, "."]
+							newRow = [str(ctx.author.id), name, abs(int(inputs[-1])), 0, 0, 0, 0, 0, ".",]
 							await ctx.message.add_reaction('\U0001F44D')
 						else:
 							await ctx.send("You cannot initialise a character with over 60 DTD.")
 					else:
-						newRow = [str(ctx.author.id), message.upper(), 40, 0, "."]
+						newRow = [str(ctx.author.id), message.upper(), 15, 0, 0, 0, 0, 0, ".",]
 						await ctx.message.add_reaction('\U0001F44D')
 				except:
-					newRow = [str(ctx.author.id), message.upper(), 40, 0, "."]
+					newRow = [str(ctx.author.id), message.upper(), 15, 0, 0, 0, 0, 0, ".",]
 					await ctx.message.add_reaction('\U0001F44D')
 				sheet.insert_row(newRow, 2)
 		else:
@@ -168,9 +168,9 @@ async def checkCharacters(ctx):
 		message = "You are not currently tracking any characters."
 	else:
 		message = "The characters you are currently tracking are:\n\n"
-		for x in range (len(players)):
+		for x in range (len(players) - 1):
 			if players[x] == str(ctx.author.id):
-				message += characters[x].title() + ", with " + str(min(60, int(downtime[x]))) + " DTD and "  + credits[x] + "cr" + lore[x] + "lore" + contacts[x] + "contacts," + blackmail[x] + "blackmail" + exp[x] + "exp\n"
+				message += characters[x].title() + ", with " + str(min(60, int(downtime[x]))) + " DTD and "  + credits[x] + " cr, " + lore[x] + " lore, " + contacts[x] + " contacts, " + blackmail[x] + " blackmail, " + exp[x] + " exp \n"
 	await ctx.send(message)
 
 @discordClient.command()
@@ -247,68 +247,8 @@ async def deposit(ctx, *, message):
 			await ctx.send(output)
 	except:
 		await ctx.send("Command invalid.")
-@discordClient.command(aliases=["dep"])
-async def depositlore(ctx, *, message):
-	updateData()
-	global characters
-	global lore
 
-	inputs = message.split(" ")
-	name = message[:-(len(inputs[-1]) + 1)]
-
-	try:
-		if name.upper() in characters:
-			if int(inputs[-1].replace(',', '')) > 0:
-				await ctx.message.add_reaction('\U0001F551')
-			else:
-				await ctx.send("Please enter a valid amount of lore.")
-		else:
-			output = "Could not find a character named " + name.title() + "."
-			await ctx.send(output)
-	except:
-		await ctx.send("Command invalid.")
-@discordClient.command(aliases=["dep"])
-async def depositct(ctx, *, message):
-	updateData()
-	global characters
-	global contacts
-
-	inputs = message.split(" ")
-	name = message[:-(len(inputs[-1]) + 1)]
-
-	try:
-		if name.upper() in characters: 
-			if int(inputs[-1].replace(',', '')) > 0:
-				await ctx.message.add_reaction('\U0001F551')
-			else:
-				await ctx.send("Please enter a valid amount of contacts.")
-		else:
-			output = "Could not find a character named " + name.title() + "."
-			await ctx.send(output)
-	except:
-		await ctx.send("Command invalid.")
-@discordClient.command(aliases=["dep"])
-async def depositbm(ctx, *, message):
-	updateData()
-	global characters
-	global blackmail
-
-	inputs = message.split(" ")
-	name = message[:-(len(inputs[-1]) + 1)]
-
-	try:
-		if name.upper() in characters:
-			if int(inputs[-1].replace(',', '')) > 0:
-				await ctx.message.add_reaction('\U0001F551')
-			else:
-				await ctx.send("Please enter a valid amount of blackmail.")
-		else:
-			output = "Could not find a character named " + name.title() + "."
-			await ctx.send(output)
-	except:
-		await ctx.send("Command invalid.")
-
-@discordClient.command(aliases=["dep"])
+@discordClient.command(aliases=["depexp"])
 async def depositexp(ctx, *, message):
 	updateData()
 	global characters
@@ -331,25 +271,31 @@ async def depositexp(ctx, *, message):
 
 @discordClient.event
 async def on_raw_reaction_add(payload):
-	global characters
-	global credits
-	guild = discordClient.get_guild(740373244678504468)
-	channel = discordClient.get_channel(payload.channel_id)
-	message = await channel.fetch_message(payload.message_id)
-	user = guild.get_member(payload.user_id)
+    global characters
+    global credits
+    global exp
+    guild = discordClient.get_guild(740373244678504468)
+    channel = discordClient.get_channel(payload.channel_id)
+    message = await channel.fetch_message(payload.message_id)
+    user = guild.get_member(payload.user_id)
 
-	inputs = message.content.split(" ")
-	name = message.content[len(inputs[0]) + 1:-(len(inputs[-1]) + 1)]
+    inputs = message.content.split(" ")
+    name = message.content[len(inputs[0]) + 1:-(len(inputs[-1]) + 1)]
 
-	DM = discord.utils.get(message.guild.roles, name="DM")
-	DR = discord.utils.get(message.guild.roles, name="Downtime Roller")
+    DM = discord.utils.get(message.guild.roles, name="DM")
+    DR = discord.utils.get(message.guild.roles, name="Downtime Roller")
+	
 
-	for reaction in message.reactions:
-		if reaction.emoji == '\U0001F551' and reaction.me == True:
-			if (DR in user.roles or DM in user.roles) and payload.emoji.name == '\U0001F44D':
-				updateData()
-				await message.remove_reaction('\U0001F551', discordClient.get_user(1171504074861068298))
-				sheet.update_cell(characters.index(name.upper()) + 2, 4, int(credits[characters.index(name.upper())]) + int(inputs[-1].replace(',', '')))
+    for reaction in message.reactions:
+        if reaction.emoji == '\U0001F551' and reaction.me == True:
+            if (DR in user.roles or DM in user.roles) and payload.emoji.name == '\U0001F44D':
+                updateData()
+                await message.remove_reaction('\U0001F551', discordClient.get_user(1171504074861068298))
+                sheet.update_cell(characters.index(name.upper()) + 2, 4, int(credits[characters.index(name.upper())]) + int(inputs[-1].replace(',', '')))
+            elif (DR in user.roles or DM in user.roles) and payload.emoji.name == u"\U0001F44E":
+                updateData()
+                await message.remove_reaction('\U0001F551', discordClient.get_user(1171504074861068298))
+                sheet.update_cell(characters.index(name.upper()) + 2, 8, int(exp[characters.index(name.upper())]) + int(inputs[-1].replace(',', '')))
 
 @discordClient.command(aliases=["bal", "Checkcr"])
 async def balance(ctx, *, character):
@@ -508,11 +454,11 @@ async def transferlore(ctx, *, message):
 					if players[characters.index(recipient.upper())] != str(ctx.author.id) or ctx.author.id == 225428121145311232:
 						if int(transferValue) > 0:
 							if int(lore[characters.index(name.upper())]) >= transferValue:
-								sheet.update_cell(characters.index(name.upper()) + 2, 4, int(lore[characters.index(name.upper())]) - transferValue)
-								sheet.update_cell(characters.index(recipient.upper()) + 2, 4, int(lore[characters.index(recipient.upper())]) + transferValue)
+								sheet.update_cell(characters.index(name.upper()) + 2, 5, int(lore[characters.index(name.upper())]) - transferValue)
+								sheet.update_cell(characters.index(recipient.upper()) + 2, 5, int(lore[characters.index(recipient.upper())]) + transferValue)
 								await ctx.message.add_reaction('\U0001F44D')
 							else:
-								output = name.title() + " only has " + str(lore[characters.index(name.upper())]) + "cr."
+								output = name.title() + " only has " + str(lore[characters.index(name.upper())]) + " lore. "
 								await ctx.send(output)
 						else:
 							await ctx.send("Cannot transfer Lore value below 0.")
@@ -555,11 +501,11 @@ async def transferct(ctx, *, message):
 					if players[characters.index(recipient.upper())] != str(ctx.author.id) or ctx.author.id == 225428121145311232:
 						if int(transferValue) > 0:
 							if int(contacts[characters.index(name.upper())]) >= transferValue:
-								sheet.update_cell(characters.index(name.upper()) + 2, 4, int(contacts[characters.index(name.upper())]) - transferValue)
-								sheet.update_cell(characters.index(recipient.upper()) + 2, 4, int(contacts[characters.index(recipient.upper())]) + transferValue)
+								sheet.update_cell(characters.index(name.upper()) + 2, 6, int(contacts[characters.index(name.upper())]) - transferValue)
+								sheet.update_cell(characters.index(recipient.upper()) + 2, 6, int(contacts[characters.index(recipient.upper())]) + transferValue)
 								await ctx.message.add_reaction('\U0001F44D')
 							else:
-								output = name.title() + " only has " + str(contacts[characters.index(name.upper())]) + "cr."
+								output = name.title() + " only has " + str(contacts[characters.index(name.upper())]) + " contacts. "
 								await ctx.send(output)
 						else:
 							await ctx.send("Cannot transfer contacts value below 0.")
@@ -602,11 +548,11 @@ async def transferbm(ctx, *, message):
 					if players[characters.index(recipient.upper())] != str(ctx.author.id) or ctx.author.id == 225428121145311232:
 						if int(transferValue) > 0:
 							if int(blackmail[characters.index(name.upper())]) >= transferValue:
-								sheet.update_cell(characters.index(name.upper()) + 2, 4, int(blackmail[characters.index(name.upper())]) - transferValue)
-								sheet.update_cell(characters.index(recipient.upper()) + 2, 4, int(blackmail[characters.index(recipient.upper())]) + transferValue)
+								sheet.update_cell(characters.index(name.upper()) + 2, 7, int(blackmail[characters.index(name.upper())]) - transferValue)
+								sheet.update_cell(characters.index(recipient.upper()) + 2, 7, int(blackmail[characters.index(recipient.upper())]) + transferValue)
 								await ctx.message.add_reaction('\U0001F44D')
 							else:
-								output = name.title() + " only has " + str(blackmail[characters.index(name.upper())]) + "cr."
+								output = name.title() + " only has " + str(blackmail[characters.index(name.upper())]) + " blackmail. "
 								await ctx.send(output)
 						else:
 							await ctx.send("Cannot transfer blackmail value below 0.")
@@ -722,6 +668,9 @@ async def roll(ctx, *, message):
 			sheet.update_cell(characterID + 2, 5, ".")
 			disadvNextRoll = True
 
+		netblackmailChange = 0
+		netloreChange = 0
+		netcontactsChange = 0
 		netCrChange = 0
 		output = "DOWNTIME RESULTS:\n"
 
@@ -742,61 +691,43 @@ async def roll(ctx, *, message):
 
 			d100Mod = min(max(0, (5 * math.floor(abilityCheck / 5)) - 5), 25)
 			d100 = random.randint(1, 100)
-			d100Disadv = random.randint(1, 100)
-			if disadvNextRoll:
-				d100Total = min(d100, d100Disadv) + d100Mod
-				d100DisadvOutput = "~~" + str(max(d100Disadv, d100)) + "~~ "
-				d100 = min(d100Disadv, d100)
-			else:
-				d100Total = d100 + d100Mod
-				d100DisadvOutput = ""
-			output += "Percentile total: " + str(d100Total) + " (" + d100DisadvOutput + str(d100) + " + " + str(d100Mod) + ")\n"
+			
+			
+			
+			d100Total = d100 + d100Mod
+			d100Output = ""
+			output += "Percentile total: " + str(d100Total) + " (" + d100Output + str(d100) + " + " + str(d100Mod) + ")\n"
 
 			if d100Total > 110:
 				output += "Result: " + downtimeJobs[jsonID]["111"]["output"] + "\n"
-				netCrChange += int(downtimeJobs[jsonID]["111"]["crChange"])
-				output += "Result: " + downtimeJobs[jsonID]["111"]["output"] + "\n"
-				netblackmailChange += int(downtimeJobs[jsonID]["111"]["blackmailChange"])
-				output += "Result: " + downtimeJobs[jsonID]["111"]["output"] + "\n"
-				netloreChange += int(downtimeJobs[jsonID]["111"]["loreChange"])
-				output += "Result: " + downtimeJobs[jsonID]["111"]["output"] + "\n"
 				netcontactsChange += int(downtimeJobs[jsonID]["111"]["contactsChange"])
+				netblackmailChange += int(downtimeJobs[jsonID]["111"]["blackmailChange"])
+				netloreChange += int(downtimeJobs[jsonID]["111"]["loreChange"])
+				netCrChange += int(downtimeJobs[jsonID]["111"]["crChange"])
 			elif d100Total > 100:
 				output += "Result: " + downtimeJobs[jsonID]["101"]["output"] + "\n"
-				netCrChange += int(downtimeJobs[jsonID]["101"]["crChange"])
-				output += "Result: " + downtimeJobs[jsonID]["101"]["output"] + "\n"
-				netblackmailChange += int(downtimeJobs[jsonID]["101"]["blackmailChange"])
-				output += "Result: " + downtimeJobs[jsonID]["101"]["output"] + "\n"
-				netloreChange += int(downtimeJobs[jsonID]["101"]["loreChange"])
-				output += "Result: " + downtimeJobs[jsonID]["101"]["output"] + "\n"
 				netcontactsChange += int(downtimeJobs[jsonID]["101"]["contactsChange"])
+				netblackmailChange += int(downtimeJobs[jsonID]["101"]["blackmailChange"])
+				netloreChange += int(downtimeJobs[jsonID]["101"]["loreChange"])
+				netCrChange += int(downtimeJobs[jsonID]["101"]["crChange"])
 			elif d100Total > 70:
 				output += "Result: " + downtimeJobs[jsonID]["71"]["output"] + "\n"
-				netCrChange += int(downtimeJobs[jsonID]["71"]["crChange"])
-				output += "Result: " + downtimeJobs[jsonID]["71"]["output"] + "\n"
-				netblackmailChange += int(downtimeJobs[jsonID]["71"]["blackmailChange"])
-				output += "Result: " + downtimeJobs[jsonID]["71"]["output"] + "\n"
-				netloreChange += int(downtimeJobs[jsonID]["71"]["loreChange"])
-				output += "Result: " + downtimeJobs[jsonID]["71"]["output"] + "\n"
 				netcontactsChange += int(downtimeJobs[jsonID]["71"]["contactsChange"])
+				netblackmailChange += int(downtimeJobs[jsonID]["71"]["blackmailChange"])
+				netloreChange += int(downtimeJobs[jsonID]["71"]["loreChange"])
+				netCrChange += int(downtimeJobs[jsonID]["71"]["crChange"])
 			elif d100Total > 40:
 				output += "Result: " + downtimeJobs[jsonID]["41"]["output"] + "\n"
-				netCrChange += int(downtimeJobs[jsonID]["41"]["crChange"])
-				output += "Result: " + downtimeJobs[jsonID]["41"]["output"] + "\n"
-				netblackmailChange += int(downtimeJobs[jsonID]["41"]["blackmailChange"])
-				output += "Result: " + downtimeJobs[jsonID]["41"]["output"] + "\n"
-				netloreChange += int(downtimeJobs[jsonID]["41"]["loreChange"])
-				output += "Result: " + downtimeJobs[jsonID]["41"]["output"] + "\n"
 				netcontactsChange += int(downtimeJobs[jsonID]["41"]["contactsChange"])
+				netblackmailChange += int(downtimeJobs[jsonID]["41"]["blackmailChange"])
+				netloreChange += int(downtimeJobs[jsonID]["41"]["loreChange"])
+				netCrChange += int(downtimeJobs[jsonID]["41"]["crChange"])
 			else:
 				output += "Result: " + downtimeJobs[jsonID]["1"]["output"] + "\n"
-				netCrChange += int(downtimeJobs[jsonID]["1"]["crChange"])
-				output += "Result: " + downtimeJobs[jsonID]["1"]["output"] + "\n"
-				netblackmailChange += int(downtimeJobs[jsonID]["1"]["blackmailChange"])
-				output += "Result: " + downtimeJobs[jsonID]["1"]["output"] + "\n"
-				netloreChange += int(downtimeJobs[jsonID]["1"]["loreChange"])
-				output += "Result: " + downtimeJobs[jsonID]["1"]["output"] + "\n"
 				netcontactsChange += int(downtimeJobs[jsonID]["1"]["contactsChange"])
+				netblackmailChange += int(downtimeJobs[jsonID]["1"]["blackmailChange"])
+				netloreChange += int(downtimeJobs[jsonID]["1"]["loreChange"])
+				netCrChange += int(downtimeJobs[jsonID]["1"]["crChange"])
 			disadvNextRoll = False
 			if random.randint(1, 10) == 1:
 				output += "DISADVANTAGE NEXT ROLL\n"
@@ -809,14 +740,15 @@ async def roll(ctx, *, message):
 		if disadvNextRoll:
 			sheet.update_cell(characterID + 2, 5, "x")
 
+		
+		sheet.update_cell(characterID + 2, 5, int(lore[characterID]) + netloreChange)
+		output = "NET lore CHANGE: " + str(netloreChange) + "lore"
+		sheet.update_cell(characterID + 2, 7, int(blackmail[characterID]) + netblackmailChange)
+		output = "NET blackmail CHANGE: " + str(netblackmailChange) + "blackmail"
+		sheet.update_cell(characterID + 2, 6, int(contacts[characterID]) + netcontactsChange)
+		output = "NET contacts CHANGE: " + str(netcontactsChange) + "contacts"
 		sheet.update_cell(characterID + 2, 4, int(credits[characterID]) + netCrChange)
 		output = "NET CR CHANGE: " + str(netCrChange) + "cr"
-		sheet.update_cell(characterID + 2, 4, int(lore[characterID]) + netCrChange)
-		output = "NET lore CHANGE: " + str(netloreChange) + "lore"
-		sheet.update_cell(characterID + 2, 4, int(blackmail[characterID]) + netCrChange)
-		output = "NET blackmail CHANGE: " + str(netblackmailChange) + "blackmail"
-		sheet.update_cell(characterID + 2, 4, int(contacts[characterID]) + netCrChange)
-		output = "NET contacts CHANGE: " + str(netcontactsChange) + "contacts"
 		await ctx.send(output)
 
-discordClient.run("MTE3MTUwNDA3NDg2MTA2ODI5OA.GXHhsn.Mnq43N2PKeCnUuhpuxmCYP1eWj7Epufefvg_Pg")
+discordClient.run("")
